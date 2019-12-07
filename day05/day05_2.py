@@ -8,83 +8,83 @@ def instruction_to_opcodemode(instruction: int) -> Tuple[int]:
     modes = [int(i) for i in reversed(digits[0:3])]
     return opcode, modes
 
-def get_value(program: Program, ptr: int, mode: int) -> int:
+def get_value(program: Program, self.ptr: int, mode: int) -> int:
 
     if mode == 0:
-        addr = program[ptr]
+        addr = program[self.ptr]
         value = program[addr]
     elif mode ==1:
-        value = program[ptr]
+        value = program[self.ptr]
     else:
         raise ValueError("Unknown mode {}".format(mode))
     return value
 
-def run(program: Program, _input: int=None) -> Program:
-    ptr = 0
+def run(program: Program, _input: int=None) -> Program, List[int]:
+    self.ptr = 0
     output = []
     program = program[:]
-    while program[ptr] != 99:
+    while program[self.ptr] != 99:
 
-        opcode, modes = instruction_to_opcodemode(program[ptr])
+        opcode, modes = instruction_to_opcodemode(program[self.ptr])
         # print("program :", program)
         # print("opcode : ",opcode, "modes: ", modes)
 
         if opcode == 1: # +
-            value1 = get_value(program, ptr+1, modes[0])
-            value2 = get_value(program, ptr+2, modes[1])
-            addr3 = program[ptr+3]
+            value1 = get_value(program, self.ptr+1, modes[0])
+            value2 = get_value(program, self.ptr+2, modes[1])
+            addr3 = program[self.ptr+3]
             program[addr3] = value1 + value2
             # print("value1: ", value1, "value2: ", value2, "value3: ", value1 + value2, "addr3: ", addr3)
-            ptr += 4
+            self.ptr += 4
         elif opcode == 2: # *
-            value1 = get_value(program, ptr+1, modes[0])
-            value2 = get_value(program, ptr+2, modes[1])
-            addr3 = program[ptr+3] 
+            value1 = get_value(program, self.ptr+1, modes[0])
+            value2 = get_value(program, self.ptr+2, modes[1])
+            addr3 = program[self.ptr+3] 
             # print("value1: ", value1, "value2: ", value2, "value3: ", value1 * value2, "addr3: ", addr3)
             program[addr3] = value1 * value2
-            ptr += 4
+            self.ptr += 4
         elif opcode == 3: # input
-            addr = program[ptr+1]
+            addr = program[self.ptr+1]
             program[addr] = _input
-            ptr += 2
+            self.ptr += 2
         elif opcode == 4: # output
-            # print("instruction: ",program[ptr:ptr+2])
-            value = get_value(program, ptr+1, modes[0])
+            # print("instruction: ",program[self.ptr:self.ptr+2])
+            value = get_value(program, self.ptr+1, modes[0])
             # print("value: ", value)
             output.append(value)
-            ptr += 2
+            self.ptr += 2
         elif opcode == 5: # jump-if-true
-            value1 = get_value(program, ptr+1, modes[0])
-            value2 = get_value(program, ptr+2, modes[1])
+            value1 = get_value(program, self.ptr+1, modes[0])
+            value2 = get_value(program, self.ptr+2, modes[1])
             if value1 != 0:
-                ptr = value2
+                self.ptr = value2
             else:
-                ptr += 3
+                self.ptr += 3
         elif opcode == 6: # jump-if-false
-            value1 = get_value(program, ptr+1, modes[0])
-            value2 = get_value(program, ptr+2, modes[1])
+            value1 = get_value(program, self.ptr+1, modes[0])
+            value2 = get_value(program, self.ptr+2, modes[1])
             if value1 == 0:
-                ptr = value2
+                self.ptr = value2
             else:
-                ptr += 3
+                self.ptr += 3
         elif opcode == 7: # less than
-            value1 = get_value(program, ptr+1, modes[0])
-            value2 = get_value(program, ptr+2, modes[1])
-            addr3 = program[ptr+3] 
+            value1 = get_value(program, self.ptr+1, modes[0])
+            value2 = get_value(program, self.ptr+2, modes[1])
+            addr3 = program[self.ptr+3] 
             if value1 < value2:
                 program[addr3] = 1
             else:
                 program[addr3] = 0     
-            ptr += 4
+            self.ptr += 4
         elif opcode == 8: # equals
-            value1 = get_value(program, ptr+1, modes[0])
-            value2 = get_value(program, ptr+2, modes[1])
-            addr3 = program[ptr+3] 
+            value1 = get_value(program, self.ptr+1, modes[0])
+            value2 = get_value(program, self.ptr+2, modes[1])
+            addr3 = program[self.ptr+3] 
             if value1 == value2:
                 program[addr3] = 1
             else:
                 program[addr3] = 0     
-            ptr += 4
+            self.ptr += 4
         else:
             raise ValueError("Wrong opcode {}".format(opcode))
 
