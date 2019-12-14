@@ -60,3 +60,6 @@ layer = fewest_zeros(layers)
 print(mult_1_2(layer))
 
 image = stack_layers(layers, shape)
+
+# Replace white by '*' 
+print("\n".join(["".join(["+" if (pix == 1) else " " for pix in line]) for line in image]))

@@ -9,9 +9,9 @@ def run(program: Program) -> Program:
         opcode = program[idx]
         addr1, addr2, addr3 = program[idx+1], program[idx+2], program[idx+3]
 
-        if opcode == 1:
+        if opcode == 1: # +
             program[addr3] = program[addr1] + program[addr2]
-        elif opcode == 2:
+        elif opcode == 2: # * 
             program[addr3] = program[addr1] * program[addr2]
         else:
             raise ValueError("Wrong opcode {}".format(opcode))

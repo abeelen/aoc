@@ -5,32 +5,41 @@ class XY(NamedTuple):
     y: int
 
 def locations(path: str) -> List[XY]:
-    xys = [XY(0, 0)]
-    for instr in path.split(','):
-        direction, steps = instr[0], int(instr[1:])
-        pos = xys[-1]
-        if direction == "R":
-            for i in range(1, steps+1):
-                xys.append(XY(pos.x+i, pos.y))
-        elif direction == "L":
-            for i in range(1, steps+1):
-                xys.append(XY(pos.x-i, pos.y))
-        elif direction == "U":
-            for i in range(1, steps+1):
-                xys.append(XY(pos.x, pos.y+i))
-        elif direction == "D":
-            for i in range(1, steps+1):
-                xys.append(XY(pos.x, pos.y-i))
-    return xys
+    x = y = 0
+
+    visited = [] # not including 0, 0
+
+    for instruction in path.split(','):
+        direction = instruction[0]
+        steps = int(instruction[1:])
+
+        for _ in range(steps):
+            if direction == "R":
+                x += 1
+            elif direction == "L":
+                x -= 1
+            elif direction == "U":
+                y += 1
+            elif direction == "D":
+                y -= 1
+            else:
+                raise ValueError("Bad direction : {}".format(direction))
+       
+            visited.append(XY(x, y))
+
+    return visited
 
 def crossing(path1: str, path2: str) -> Set[XY]:
-    pos1 = locations(path1)
-    pos2 = locations(path2)
-    return set(pos1).intersection(set(pos2))
+    location1 = set(locations(path1))
+    location2 = set(locations(path2))
+    return location1.intersection(location2)
+
+def manhattan_distance(xy: XY) -> int:
+    return abs(xy.x) + abs(xy.y)
 
 def distance(path1: str, path2: str) -> int:
     crosses = list(crossing(path1, path2))
-    dist = [abs(cross.x)+abs(cross.y) for cross in crosses if cross != XY(0,0)]
+    dist = [manhattan_distance(cross) for cross in crosses]
     return min(dist)
 
 assert(distance("R8,U5,L5,D3", "U7,R6,D4,L4") == 6)
@@ -42,17 +51,17 @@ with open("input") as f:
 
 print(distance(path1, path2))
 
-def steps(pos1: List[XY], cross: XY) -> int:
+def steps_to_cross(location1: List[XY], cross: XY) -> int:
     steps = 0
-    while pos1[steps] != cross:
+    while location1[steps] != cross:
         steps += 1 
-    return steps
+    return steps + 1
 
 def fewest_steps(path1: str, path2: str) -> int:
-    pos1 = locations(path1)
-    pos2 = locations(path2)
-    crosses = list(set(pos1).intersection(set(pos2)))
-    _steps = [steps(pos1, cross) + steps(pos2, cross) for cross in crosses if cross != XY(0,0)]
+    location1 = locations(path1)
+    location2 = locations(path2)
+    crosses = list(set(location1).intersection(set(location2)))
+    _steps = [steps_to_cross(location1, cross) + steps_to_cross(location2, cross) for cross in crosses]
     return min(_steps)
 
 assert(fewest_steps("R8,U5,L5,D3", "U7,R6,D4,L4") == 30)
