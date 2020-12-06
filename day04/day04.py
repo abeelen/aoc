@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import NamedTuple
+from typing import NamedTuple, Dict
 import re
 
 FOUR_DIGIT = re.compile("\d{4}")
@@ -7,6 +7,41 @@ HEIGHT = re.compile("(\d*)(cm|in)$")
 HAIR_COLOR = re.compile("^#([0-9a-f]){6}$")
 EYE_COLOR = re.compile("^(amb)|(blu)|(brn)|(gry)|(grn)|(hzl)|(oth)$")
 PASSPORT = re.compile("^(\d){9}$")
+
+Passport = Dict[str, str]
+
+def make_passport(line: str) -> Passport:
+    return dict(tuple(item.split(":")) for item in line.split())
+
+def make_passports(raw: str) -> List[Passport]:
+    return [make_passport(line) for line in raw.split('\n\n')]
+
+VALID_FIELDS = ['byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid']
+
+def is_valid(passport: Passport, required_fields: List[str] = VALID_FIELDS) -> bool:
+
+    checks = [field in passport for field in required_fields]
+    return all(checks)
+
+
+def is_valid2(passport: Passport) -> bool:
+    checks = [
+        1920 <= int(passport.get('byr', -1)) <= 2002,
+        2010 <= int(passport.get('iyr', -1)) <= 2020,
+        2020 <= int(passport.get('eyr', -1)) <= 2030,
+        is_valid_height(passport.get('hgt', '')),
+        re.match("^#([0-9a-f]){6}$", passport.get('hcl', '')),
+        passport.get('ecl', '') in ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth'],
+        re.match("^(\d){9}$", passport.get('pid', "")),
+    ]
+    return all(checks)
+
+def is_valid_height(hgt: str) -> bool:
+    items = re.match("(\d*)(cm|in)$", hgt)
+    if not items:
+        return False
+    items = items.groups()
+    return (150 <= int(items[0]) <= 193) if items[1] == "cm" else (59 <= int(items[0]) <= 76)
 
 
 class Passport(NamedTuple):
@@ -68,13 +103,15 @@ iyr:2011 ecl:brn hgt:59in"""
 
 assert [Passport.parse(item).is_valid() for item in RAW.split("\n\n")] == [True, False, True, False]
 assert sum([Passport.parse(item).is_valid() for item in RAW.split("\n\n")]) == 2
+assert sum([is_valid(passport) for passport in make_passports(RAW)]) == 2
 
 with open("day04.txt") as f:
     raw = f.read()
 
 print(sum([Passport.parse(item).is_valid() for item in raw.split("\n\n")]))
+print(sum([is_valid(passport) for passport in make_passports(raw)]))
 
-RAW_INVALID = """eyr:1972 cid:100
+INVALID = """eyr:1972 cid:100
 hcl:#18171d ecl:amb hgt:170 pid:186cm iyr:2018 byr:1926
 
 iyr:2019
@@ -88,9 +125,10 @@ hgt:59cm ecl:zzz
 eyr:2038 hcl:74454a iyr:2023
 pid:3556412378 byr:2007"""
 
-assert sum([Passport.parse(item).is_valid2() for item in RAW_INVALID.split("\n\n")]) == 0
+assert sum([Passport.parse(item).is_valid2() for item in INVALID.split("\n\n")]) == 0
+assert sum([is_valid2(passport) for passport in make_passports(INVALID)]) == 0
 
-RAW_VALID="""pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980
+VALID="""pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980
 hcl:#623a2f
 
 eyr:2029 ecl:blu cid:129 byr:1989
@@ -103,6 +141,8 @@ eyr:2022
 
 iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719"""
 
-assert sum([Passport.parse(item).is_valid2()  for item in RAW_VALID.split("\n\n")]) == 4
+assert sum([Passport.parse(item).is_valid2()  for item in VALID.split("\n\n")]) == 4
+assert sum([is_valid2(passport) for passport in make_passports(VALID)]) == 4
 
 print(sum([Passport.parse(item).is_valid2() for item in raw.split("\n\n")]))
+print(sum([is_valid2(passport) for passport in make_passports(raw)]))
