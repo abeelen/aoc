@@ -1,6 +1,7 @@
-
+from __future__ import annotations
+from dataclasses import dataclass
 from enum import Enum
-
+from typing import NamedTuple
 
 class Directions(Enum):     
     N = 90
@@ -8,7 +9,16 @@ class Directions(Enum):
     E = 00
     W = 180
 
+class Action(NamedTuple):
+    action: str
+    value: int
 
+    @staticmethod
+    def parse(raw: str) -> Action:
+        return Action(raw[0], int(raw[1:]))
+
+
+@dataclass
 class Ship:
     direction: Directions = Directions.E
     x: int = 0
@@ -16,70 +26,56 @@ class Ship:
     w_x: int = 10
     w_y: int = 1
 
-    def move(self, instruction: str):
-        direction, step = instruction[0], int(instruction[1:])
-
-        if direction == "N" or (self.direction == Directions.N and direction == "F"):
-            self.y += step
-        elif direction == "S" or (self.direction == Directions.S and direction == "F"):
-            self.y -= step
-        elif direction == "E" or (self.direction == Directions.E and direction == "F"):
-            self.x += step
-        elif direction == "W" or (self.direction == Directions.W and direction == "F"):
-            self.x -= step
-        elif direction == "R":
-            self.direction = Directions((self.direction.value - step) % 360)
-        elif direction == "L":
-            self.direction = Directions((self.direction.value + step) % 360)
-        else:
-            raise ValueError('Unknown direction : {}'.format(direction))
-
-    def move2(self, instruction: str):
-        direction, value = instruction[0], int(instruction[1:])
-
-        if direction == "N":
-            self.w_y += value
-        elif direction == "S":
-            self.w_y -= value
-        elif direction == "E":
-            self.w_x += value
-        elif direction == "W":
-            self.w_x -= value
-        elif direction == "R":
-            d_x = self.w_x - self.x
-            d_y = self.w_y - self.y
-            if value == 90:
-                d_x, d_y = d_y, -d_x
-            elif value == 180:
-                d_x, d_y = -d_x, -d_y
-            elif value == 270:
-                d_x, d_y = -d_y, d_x
+    def move(self, action: Action):
+        if action.action == "N":
+            self.y += action.value
+        elif action.action == "S":
+            self.y -= action.value
+        elif action.action == "E":
+            self.x += action.value
+        elif action.action == "W":
+            self.x -= action.value
+        elif action.action == "R":
+            self.direction = Directions((self.direction.value - action.value) % 360)
+        elif action.action == "L":
+            self.direction = Directions((self.direction.value + action.value) % 360)
+        elif action.action == "F":
+            if self.direction == Directions.N:
+               self.y += action.value
+            elif self.direction == Directions.S:
+               self.y -= action.value
+            elif self.direction == Directions.E:
+               self.x += action.value
+            elif self.direction == Directions.W:
+               self.x -= action.value
             else:
-                raise ValueError('Unknown angle')
-            self.w_x = self.x + d_x
-            self.w_y = self.y + d_y
-        elif direction == "L":
-            d_x = self.w_x - self.x
-            d_y = self.w_y - self.y
-            if value == 90:
-                d_x, d_y = -d_y, d_x
-            elif value == 180:
-                d_x, d_y = -d_x, -d_y
-            elif value == 270:
-                d_x, d_y = d_y, -d_x
-            else:
-                raise ValueError('Unknown angle')
-            self.w_x = self.x + d_x
-            self.w_y = self.y + d_y
-        elif direction == 'F':
-            d_x = self.w_x - self.x
-            d_y = self.w_y - self.y
-            self.x += value * d_x
-            self.y += value * d_y
-            self.w_x += value * d_x
-            self.w_y += value * d_y
+                raise ValueError('Unknown action : {}'.format(action))
         else:
-            raise ValueError('Unknown direction : {}'.format(direction))
+            raise ValueError('Unknown action : {}'.format(action))
+
+    def move2(self, action: Action):
+
+        if action.action == "N":
+            self.w_y += action.value
+        elif action.action == "S":
+            self.w_y -= action.value
+        elif action.action == "E":
+            self.w_x += action.value
+        elif action.action == "W":
+            self.w_x -= action.value
+        elif action.action == "R":
+            assert action.value % 90 == 0, "angle not right"
+            for _ in range(action.value //90):
+                self.w_x, self.w_y = self.w_y, -self.w_x
+        elif action.action == "L":
+            assert action.value % 90 == 0, "angle not right"
+            for _ in range(action.value //90):
+                self.w_x, self.w_y = -self.w_y, self.w_x
+        elif action.action == 'F':
+            self.x += action.value * self.w_x
+            self.y += action.value * self.w_y
+        else:
+            raise ValueError('Unknown action : {}'.format(action))
 
 
     def manhattan_distance(self):
@@ -87,14 +83,14 @@ class Ship:
 
 def navigate(instructions: str) -> int:
     ship = Ship()
-    for instruction in instructions.strip().split('\n'):
-        ship.move(instruction)
+    for action in [Action.parse(line) for line in instructions.strip().split('\n')]:
+        ship.move(action)
     return ship.manhattan_distance()
 
 def navigate2(instructions: str) -> int:
     ship = Ship()
-    for instruction in instructions.strip().split('\n'):
-        ship.move2(instruction)
+    for action in [Action.parse(line) for line in instructions.strip().split('\n')]:
+        ship.move2(action)
     return ship.manhattan_distance()
 
 RAW="""F10
