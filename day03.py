@@ -1,5 +1,6 @@
 from collections import namedtuple
-from typing import List, Dict, Tuple
+from dataclasses import dataclass
+from typing import List, Dict, Tuple, NamedTuple
 import re
 
 RAW = """467..114..
@@ -13,9 +14,64 @@ RAW = """467..114..
 ...$.*....
 .664.598.."""
 
-Pos = namedtuple("Pos", ("x", "y"))
+# Pos = namedtuple("Pos", ("x", "y"))
 
+class Pos(NamedTuple):
+    x: int
+    y: int
 
+@dataclass
+class Number:
+    start: Pos
+    end: Pos
+    value: int
+
+    
+def adjacent_to_number(loc: Pos, number: Number) -> bool:
+    nx_lo, nx_hi = number.start.x, number.end.x
+    ny = number.start.y
+    
+    x, y = loc
+    
+    return nx_lo - 1 <= x <= nx_hi + 1 and ny - 1 <= y <= ny + 1
+
+@dataclass
+class Schematic:
+    numbers: List[Number]
+    symbols: Dict[Pos, str]
+
+    @classmethod
+    def parse_raw(cls, raw: str) -> "Schematic":
+        symbols = {}
+        numbers = []
+        for i, line in enumerate(raw.split("\n")):
+            for number in re.finditer("\d*", line):
+                if number.group() == "":
+                    continue
+                numbers.append(Number(Pos(number.start(), i), Pos(number.end() - 1, i), int(number.group())))
+            for j, c in enumerate(line):
+                if c.isdigit() or c == ".":
+                    continue
+                symbols[Pos(j, i)] =  c
+
+        return cls(numbers, symbols)
+
+    def part_numbers(self) -> List[int]:
+        return [number.value for number in self.numbers if self.is_adjacent_to_symbols(number)]
+    
+    def is_adjacent_to_symbols(self, number: Number) -> bool:
+        return any([adjacent_to_number(loc, number) for loc in self.symbols])
+    
+    def gear_ratios(self) -> List[int]:
+        locs = [pos for pos, symbol in self.symbols.items() if symbol == '*']
+        output = []
+
+        for loc in locs:
+            adjacent_numbers = [n for n in self.numbers if adjacent_to_number(loc, n)]             
+            if len(adjacent_numbers) == 2:
+                output.append(adjacent_numbers[0].value * adjacent_numbers[1].value)
+        return output
+    
 def parse_schematic(raw: str):
     symbols = []
     numbers = []
@@ -65,13 +121,23 @@ def gear_ratio(symbol, numbers) -> int:
     return number_ids[0] * number_ids[1]
 
 
-SYMBOLS, NUMBERS = parse_schematic(RAW)
-assert sum([int(number[0]) for number in NUMBERS if is_part_number(number, SYMBOLS)]) == 4361
-assert sum([gear_ratio(symbol, NUMBERS) for symbol in SYMBOLS]) == 467835
+SCHEME = Schematic.parse_raw(RAW)
+assert sum(SCHEME.part_numbers()) == 4361
+assert sum(SCHEME.gear_ratios()) == 467835
+
 
 
 with open("day03.txt", "r") as f:
     raw = f.read()
+
+schematic = Schematic.parse_raw(raw)
+print(sum(schematic.part_numbers()))
+print(sum(schematic.gear_ratios()))
+
+
+SYMBOLS, NUMBERS = parse_schematic(RAW)
+assert sum([int(number[0]) for number in NUMBERS if is_part_number(number, SYMBOLS)]) == 4361
+assert sum([gear_ratio(symbol, NUMBERS) for symbol in SYMBOLS]) == 467835
 
 symbols, numbers = parse_schematic(raw)
 print(sum([int(number[0]) for number in numbers if is_part_number(number, symbols)]))
