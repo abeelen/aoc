@@ -1,4 +1,4 @@
-RAW="""1abc2
+RAW = """1abc2
 pqr3stu8vwx
 a1b2c3d4e5f
 treb7uchet"""
@@ -19,18 +19,20 @@ assert parse_input(RAW) == 142
 print(parse_input(raw))
 """
 
+
 def calibrate_line(line: str) -> int:
     digits = [int(item) for item in line if item.isdigit()]
     return 10 * digits[0] + digits[-1]
 
-assert sum([calibrate_line(line) for line in RAW.split('\n')]) == 142
 
-with open('day01.txt', 'r') as f:
+assert sum([calibrate_line(line) for line in RAW.split("\n")]) == 142
+
+with open("day01.txt", "r") as f:
     raw = f.read().splitlines()
 
 print(sum([calibrate_line(line) for line in raw]))
 
-RAW="""two1nine
+RAW = """two1nine
 eightwothree
 abcone2threexyz
 xtwone3four
@@ -38,7 +40,17 @@ xtwone3four
 zoneight234
 7pqrstsixteen"""
 
-digits_dict = {'one':'1', 'two':'2', 'three':'3', 'four':'4', 'five':'5', 'six':'6', 'seven':'7', 'eight':'8', 'nine':'9'}
+digits_dict = {
+    "one": "1",
+    "two": "2",
+    "three": "3",
+    "four": "4",
+    "five": "5",
+    "six": "6",
+    "seven": "7",
+    "eight": "8",
+    "nine": "9",
+}
 
 """
 def parse_input2(raw):
@@ -61,6 +73,7 @@ assert parse_input2(RAW) == 281
 print(parse_input2(raw))
 """
 
+
 def calibrate_line2(line: str) -> int:
     digits = []
     for i, c in enumerate(line):
@@ -70,8 +83,9 @@ def calibrate_line2(line: str) -> int:
             for digit, value in digits_dict.items():
                 if line[i:].startswith(digit):
                     digits.append(int(value))
-                
+
     return 10 * digits[0] + digits[-1]
 
-assert sum([calibrate_line2(line) for line in RAW.split('\n')]) == 281
+
+assert sum([calibrate_line2(line) for line in RAW.split("\n")]) == 281
 print(sum([calibrate_line2(line) for line in raw]))
