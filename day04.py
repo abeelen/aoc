@@ -33,8 +33,7 @@ class Card:
         matching_numbers = self.matching_numbers()
         if matching_numbers == 0:
             return 0
-        points = 2 ** (matching_numbers - 1)
-        return points
+        return 2 ** (matching_numbers - 1)
 
 
 @dataclass
@@ -52,14 +51,12 @@ class Pile:
         return sum([card.win() for card in self.cards])
 
     def more_scratchcards(self):
-        cards = dict([(card.id, card) for card in self.cards])
-        counts = Counter(cards.keys())
-        matching_idx = [idx for idx in counts.keys() if cards[idx].matching_numbers() != 0]
-        for idx in matching_idx:
-            factor = counts[idx]
-            idxs = [cards[idx].id + 1 + off for off in range(cards[idx].matching_numbers())]
-            counts.update(factor * idxs)
-        return counts.total()
+        counts = [1 for card in self.cards]
+        for idx, card in enumerate(self.cards):
+            copies = counts[idx]
+            for off in range(card.matching_numbers()):
+                counts[idx + 1 + off] += copies
+        return sum(counts)
 
 
 PILE = Pile.parse_raw(RAW)

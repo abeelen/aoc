@@ -16,9 +16,11 @@ RAW = """467..114..
 
 # Pos = namedtuple("Pos", ("x", "y"))
 
+
 class Pos(NamedTuple):
     x: int
     y: int
+
 
 @dataclass
 class Number:
@@ -26,14 +28,15 @@ class Number:
     end: Pos
     value: int
 
-    
+
 def adjacent_to_number(loc: Pos, number: Number) -> bool:
     nx_lo, nx_hi = number.start.x, number.end.x
     ny = number.start.y
-    
+
     x, y = loc
-    
+
     return nx_lo - 1 <= x <= nx_hi + 1 and ny - 1 <= y <= ny + 1
+
 
 @dataclass
 class Schematic:
@@ -52,26 +55,27 @@ class Schematic:
             for j, c in enumerate(line):
                 if c.isdigit() or c == ".":
                     continue
-                symbols[Pos(j, i)] =  c
+                symbols[Pos(j, i)] = c
 
         return cls(numbers, symbols)
 
     def part_numbers(self) -> List[int]:
         return [number.value for number in self.numbers if self.is_adjacent_to_symbols(number)]
-    
+
     def is_adjacent_to_symbols(self, number: Number) -> bool:
         return any([adjacent_to_number(loc, number) for loc in self.symbols])
-    
+
     def gear_ratios(self) -> List[int]:
-        locs = [pos for pos, symbol in self.symbols.items() if symbol == '*']
+        locs = [pos for pos, symbol in self.symbols.items() if symbol == "*"]
         output = []
 
         for loc in locs:
-            adjacent_numbers = [n for n in self.numbers if adjacent_to_number(loc, n)]             
+            adjacent_numbers = [n for n in self.numbers if adjacent_to_number(loc, n)]
             if len(adjacent_numbers) == 2:
                 output.append(adjacent_numbers[0].value * adjacent_numbers[1].value)
         return output
-    
+
+
 def parse_schematic(raw: str):
     symbols = []
     numbers = []
@@ -124,7 +128,6 @@ def gear_ratio(symbol, numbers) -> int:
 SCHEME = Schematic.parse_raw(RAW)
 assert sum(SCHEME.part_numbers()) == 4361
 assert sum(SCHEME.gear_ratios()) == 467835
-
 
 
 with open("day03.txt", "r") as f:
