@@ -106,7 +106,7 @@ assert Hand("23432").type == HandType.Two
 assert Hand("A23A4").type == HandType.One
 assert Hand("23456").type == HandType.High
 
-HANDS=[Hand("33332"), Hand("2AAAA")]
+HANDS = [Hand("33332"), Hand("2AAAA")]
 all([hand.type == HandType.Four for hand in HANDS])
 assert HANDS[0] > HANDS[1]
 
