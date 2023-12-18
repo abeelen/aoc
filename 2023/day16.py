@@ -34,7 +34,7 @@ class Grid:
     rays_history: set[Ray] = field(default_factory=set)
     energised: set[Pos] = field(default_factory=set)
 
-    def __str__(self) -> str:
+    def __str__tiles__(self):
         output = []
         for y in range(self.shape[0] + 1):
             line = []
@@ -46,6 +46,9 @@ class Grid:
                     line.append(self.tiles[pos])
             output.append("".join(line))
         tiles = "\n".join(output)
+        return tiles
+
+    def __str__energised__(self):
         if self.energised:
             output = [
                 "".join(["#" if Pos(x, y) in self.energised else "." for x in range(self.shape[1] + 1)])
@@ -54,6 +57,11 @@ class Grid:
             energised = "\n".join(output)
         else:
             energised = ""
+        return energised
+
+    def __str__(self) -> str:
+        tiles = self.__str__tiles()
+        energised = self.__str__energised__()
         return "\n\n".join([tiles, energised])
 
     def step(self) -> None:
