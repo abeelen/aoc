@@ -38,21 +38,42 @@ class Path(NamedTuple):
     pos: Pos
     dir_index: int
     dir_count: int
+    history: List[Pos]
+
+def plot_state(grid: List[List[int]], paths: List[Path], i=0):
+    import matplotlib.pyplot as plt
+    import numpy as np
+    
+    plt.clf()
+    plt.imshow(np.array(grid), )
+    for path in paths:
+        plt.plot(*np.array(path.history).T, linewidth=2, c='orange', alpha=0.5)
+    plt.savefig(f'day17_{i:05d}.png', dpi=300)
+
+# ffmpeg -i day17_%05d.png output.mp4
 
 
-def dijkstra(grid: List[List[int]], max_dir=3, min_dir=1):
+
+def dijkstra(grid: List[List[int]], max_dir=3, min_dir=1, history=False):
     start = Pos(0, 0)
     end = Pos(len(grid[0]) - 1, len(grid) - 1)
 
     # we start from the (0,0) position with all directions
-    heaplist = [Path(0, start, dir, 1) for dir in range(4)]
+    heaplist = [Path(0, start, dir, 1, [start]) for dir in range(4)]
     seen = set()
-
+    
+    i = 0
     while heaplist:
+        if history:
+            plot_state(grid, heaplist, i)
+            i += 1
         path = heapq.heappop(heaplist)
         if path.pos == end and path.dir_count > min_dir:
             # Arrived !!!
-            return path.cost
+            if history:
+                return path.cost, path.history
+            else:
+                return path.cost
 
         if (path.pos, path.dir_index, path.dir_count) in seen:
             # We were there before
@@ -84,7 +105,7 @@ def dijkstra(grid: List[List[int]], max_dir=3, min_dir=1):
                 # Can not go in that direction anymore
                 continue
 
-            heapq.heappush(heaplist, Path(new_cost, new_pos, dir_index, new_count))
+            heapq.heappush(heaplist, Path(new_cost, new_pos, dir_index, new_count, path.history+ [new_pos,]))
 
     return None
 
@@ -93,6 +114,8 @@ WORLD = parse_raw(RAW)
 assert dijkstra(WORLD, max_dir=3, min_dir=1) == 102
 assert dijkstra(WORLD, max_dir=10, min_dir=4) == 94
 
+cost, history = dijkstra(WORLD, history=True)
+ 
 RAW = """111111111111
 999999999991
 999999999991
@@ -106,5 +129,6 @@ with open("day17.txt", "r") as f:
     raw = f.read().strip()
 
 world = parse_raw(raw)
-print(dijkstra(world, max_dir=3, min_dir=1))
-print(dijkstra(world, max_dir=10, min_dir=4))
+# cost, history = dijkstra(world, max_dir=3, min_dir=1, history=True)
+#print(dijkstra(world, max_dir=3, min_dir=1))
+# print(dijkstra(world, max_dir=10, min_dir=4))
