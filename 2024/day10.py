@@ -1,11 +1,5 @@
-from collections import (
-    defaultdict,
-    deque,
-    namedtuple,
-)
-from typing import (
-    List,
-)
+from collections import defaultdict, deque, namedtuple
+from typing import List
 
 RAW_INPUT = """0123
 1234
@@ -21,49 +15,25 @@ RAW_INPUT_2 = """89010123
 01329801
 10456732"""
 
-Pos = namedtuple(
-    "Pos",
-    [
-        "x",
-        "y",
-    ],
-)
+Pos = namedtuple("Pos", ["x", "y"])
 
 
-def parse_input(
-    raw_input: str,
-) -> List[List[int]]:
+def parse_input(raw_input: str) -> List[List[int]]:
     lines = raw_input.strip().split("\n")
     grid = [[int(c) for c in line] for line in lines]
     return grid
 
 
-def find_starts(
-    grid: List[List[int]],
-) -> List[Pos]:
+def find_starts(grid: List[List[int]]) -> List[Pos]:
     starts = []
-    for (
-        y,
-        line,
-    ) in enumerate(grid):
-        for (
-            x,
-            h,
-        ) in enumerate(line):
+    for y, line in enumerate(grid):
+        for x, h in enumerate(line):
             if h == 0:
-                starts.append(
-                    Pos(
-                        x,
-                        y,
-                    )
-                )
+                starts.append(Pos(x, y))
     return starts
 
 
-def score_trailheads(
-    grid: List[List[int]],
-    rating=False,
-) -> int:
+def score_trailheads(grid: List[List[int]], rating=False) -> int:
     starts = find_starts(grid)
     max_x = len(grid[0])
     max_y = len(grid)
@@ -76,31 +46,8 @@ def score_trailheads(
         last_pos = trail[-1]
         height = grid[last_pos.y][last_pos.x]
 
-        for (
-            dx,
-            dy,
-        ) in (
-            (
-                -1,
-                0,
-            ),
-            (
-                1,
-                0,
-            ),
-            (
-                0,
-                -1,
-            ),
-            (
-                0,
-                1,
-            ),
-        ):
-            new_pos = Pos(
-                last_pos.x + dx,
-                last_pos.y + dy,
-            )
+        for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            new_pos = Pos(last_pos.x + dx, last_pos.y + dy)
             if 0 <= new_pos.x < max_x and 0 <= new_pos.y < max_y:
                 new_height = grid[new_pos.y][new_pos.x]
                 if new_height == height + 1:
@@ -115,24 +62,10 @@ def score_trailheads(
 
 assert score_trailheads(parse_input(RAW_INPUT)) == 1
 assert score_trailheads(parse_input(RAW_INPUT_2)) == 36
-assert (
-    score_trailheads(
-        parse_input(RAW_INPUT_2),
-        rating=True,
-    )
-    == 81
-)
+assert score_trailheads(parse_input(RAW_INPUT_2)) == 81
 
-with open(
-    "day10.txt",
-    "r",
-) as file:
+with open("day10.txt", "r") as file:
     raw_input = file.read()
 
 print(score_trailheads(parse_input(raw_input)))
-print(
-    score_trailheads(
-        parse_input(raw_input),
-        rating=True,
-    )
-)
+print(score_trailheads(parse_input(raw_input), rating=True))
