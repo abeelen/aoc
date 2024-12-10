@@ -30,7 +30,7 @@ def similarity_score(L: List[int], R: List[int]) -> int:
     cr = Counter(R)
     sr = set(R)
     sl = set(L)
-    return sum([k * cr[k] for k in L if k in sr]) 
+    return sum([k * cr[k] for k in L if k in sr])
 
 
 assert calculate_distance(*parse_input(INPUT)) == 11

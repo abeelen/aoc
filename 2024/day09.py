@@ -34,9 +34,7 @@ def compress_diskmap(disk_map: List[File]) -> List[File]:
         still_to_move = file_to_move.length - can_move_length
 
         disk_map[index_free] = File(file_before.id, file_before.length, 0)
-        disk_map.insert(
-            index_free + 1, File(file_to_move.id, can_move_length, still_free)
-        )
+        disk_map.insert(index_free + 1, File(file_to_move.id, can_move_length, still_free))
 
         if still_to_move != 0:
             disk_map.append(
@@ -93,9 +91,7 @@ def compress_diskmap_id(disk_map: List[File]) -> List[File]:
         still_to_move = file_to_move.length - can_move_length
 
         disk_map[index_free] = File(file_before.id, file_before.length, 0)
-        disk_map.insert(
-            index_free + 1, File(file_to_move.id, can_move_length, still_free)
-        )
+        disk_map.insert(index_free + 1, File(file_to_move.id, can_move_length, still_free))
         # Beware that with the insert the index has changed
         index_to_move += 1
 
@@ -130,19 +126,11 @@ def diskmap__repr__(disk_map: List[File]) -> str:
     return "".join([str(file.id) * file.length + "." * file.free for file in disk_map])
 
 
-assert (
-    diskmap__repr__(compress_diskmap(parse_input(RAW_INPUT_SMALL))) == "022111222......"
-)
+assert diskmap__repr__(compress_diskmap(parse_input(RAW_INPUT_SMALL))) == "022111222......"
 
-assert (
-    diskmap__repr__(compress_diskmap(parse_input(RAW_INPUT)))
-    == "0099811188827773336446555566.............."
-)
+assert diskmap__repr__(compress_diskmap(parse_input(RAW_INPUT))) == "0099811188827773336446555566.............."
 
-assert (
-    diskmap__repr__(compress_diskmap_id(parse_input(RAW_INPUT)))
-    == "00992111777.44.333....5555.6666.....8888.."
-)
+assert diskmap__repr__(compress_diskmap_id(parse_input(RAW_INPUT))) == "00992111777.44.333....5555.6666.....8888.."
 
 assert diskmap_checksum(compress_diskmap(parse_input(RAW_INPUT))) == 1928
 assert diskmap_checksum(compress_diskmap_id(parse_input(RAW_INPUT))) == 2858

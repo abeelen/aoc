@@ -34,8 +34,7 @@ def find_XMAS(letters: Dict[str, List[Pos]]) -> int:
         for direction in product([-1, 0, 1], [-1, 0, 1]):
             if all(
                 [
-                    Pos(pos.x + direction[0] * i, pos.y + direction[1] * i)
-                    in letters[letter]
+                    Pos(pos.x + direction[0] * i, pos.y + direction[1] * i) in letters[letter]
                     for i, letter in enumerate("MAS", 1)
                 ]
             ):
@@ -50,8 +49,7 @@ def find_X_MAS(letters: Dict[str, List[Pos]]) -> int:
         for direction in product([-1, 1], [-1, 1]):
             if all(
                 [
-                    Pos(pos.x + direction[0] * i, pos.y + direction[1] * i)
-                    in letters[letter]
+                    Pos(pos.x + direction[0] * i, pos.y + direction[1] * i) in letters[letter]
                     for i, letter in zip([-1, 1], "MS")
                 ]
             ):

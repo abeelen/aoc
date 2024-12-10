@@ -52,10 +52,7 @@ def compute_antinodes(pos: List[Pos], size: Size, harmonics=False) -> List[Pos]:
 
         if harmonics:
             harmonics = ceil(min(size.x / abs(dx), size.y / abs(dy)))
-            nodes = [
-                Pos(pos1.x + dx * factor, pos1.y + dy * factor)
-                for factor in range(-harmonics - 1, harmonics + 1)
-            ]
+            nodes = [Pos(pos1.x + dx * factor, pos1.y + dy * factor) for factor in range(-harmonics - 1, harmonics + 1)]
         else:
             nodes = [
                 Pos(pos1.x - dx, pos1.y - dy),
@@ -75,9 +72,7 @@ def compute_antinodes(pos: List[Pos], size: Size, harmonics=False) -> List[Pos]:
     return antinodes
 
 
-def compute_unique_antinodes(
-    data: Dict[str, List[Pos]], size: Size, harmonics=False
-) -> int:
+def compute_unique_antinodes(data: Dict[str, List[Pos]], size: Size, harmonics=False) -> int:
     output = set()
     for pos in data.values():
         antinodes = compute_antinodes(pos, size, harmonics=harmonics)

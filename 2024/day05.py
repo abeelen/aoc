@@ -88,9 +88,7 @@ def compare_update(update1, update2, rules=None):
 
 
 def sum_incorrect_middle_number(updates, rules):
-    invalid_updates = [
-        update for update in updates if not is_right_order(update, rules)
-    ]
+    invalid_updates = [update for update in updates if not is_right_order(update, rules)]
     key = cmp_to_key(lambda x, y: compare_update(x, y, rules))
     sorted_updates = [sorted(update, key=key) for update in invalid_updates]
     middle_numbers = [update[len(update) // 2] for update in sorted_updates]
@@ -109,9 +107,7 @@ assert [is_right_order(update, RULES) for update in UPDATES] == [
 
 
 assert sum_valid_middle_number(UPDATES, RULES) == 143
-assert sorted(
-    [75, 97, 47, 61, 53], key=cmp_to_key(lambda x, y: compare_update(x, y, RULES))
-) == [97, 75, 47, 61, 53]
+assert sorted([75, 97, 47, 61, 53], key=cmp_to_key(lambda x, y: compare_update(x, y, RULES))) == [97, 75, 47, 61, 53]
 assert sum_incorrect_middle_number(UPDATES, RULES) == 123
 
 with open("day05.txt") as f:
