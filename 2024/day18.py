@@ -59,7 +59,7 @@ def block_space_brute(bytes: list[Pos], limit=None) -> Pos:
 
 
 # Brute force is NOT possible....
-def block_space_dichotomy(bytes: list[Pos], limit=None) -> Pos:
+def block_space_dichotomy(bytes: list[Pos], limit=None) -> str:
     a = limit
     b = len(bytes)
 
@@ -74,6 +74,13 @@ def block_space_dichotomy(bytes: list[Pos], limit=None) -> Pos:
             b = m
 
     return ",".join(map(str, bytes[a - 1]))
+
+
+def block_space_bisect(bytes: list[Pos], limit=None) -> str:
+    from bisect import bisect_left
+
+    idx = bisect_left(range(len(bytes)), True, lo=limit, key=lambda x: bfs(bytes, limit=x) is None)
+    return ",".join(map(str, bytes[idx - 1]))
 
 
 RAW_INPUT = """5,4
@@ -105,9 +112,12 @@ RAW_INPUT = """5,4
 assert bfs(parse_input(RAW_INPUT), limit=12) == 22
 assert block_space_brute(parse_input(RAW_INPUT), limit=12) == "6,1"
 assert block_space_dichotomy(parse_input(RAW_INPUT), limit=12) == "6,1"
+assert block_space_bisect(parse_input(RAW_INPUT), limit=12) == "6,1"
 
 with open("input/day18.txt") as f:
     raw_input = f.read().strip()
-print(bfs(parse_input(raw_input), limit=1024))
+bytes = parse_input(raw_input)
+print(bfs(bytes, limit=1024))
 # print(block_space_brute(parse_input(raw_input), limit=1024))
-print(block_space_dichotomy(parse_input(raw_input), limit=1024))
+print(block_space_dichotomy(bytes, limit=1024))
+print(block_space_bisect(bytes, limit=1024))  # 33 % faster than the dichotomy
